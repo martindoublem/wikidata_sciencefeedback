@@ -6,10 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-wikipedia = "*"
 python-language-server = "*"
-qwikidata = "*"
-wikidata = "*"
 
 [requires]
 python_version = "3.8"
