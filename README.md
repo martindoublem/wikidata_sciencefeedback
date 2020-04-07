@@ -3,4 +3,5 @@
 To run:
 
 > pipenv shell
+
 > python data.py
