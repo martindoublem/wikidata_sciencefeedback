@@ -26,6 +26,8 @@ class Wikidata:
             'action': action,
             'format': 'json'
         }
+        if isinstance(query, list):
+            query = query[0]
         if action == 'wbsearchentities':
             payload['limit'] = 1
             payload['language'] = language
@@ -53,7 +55,7 @@ class Wikidata:
         label = entities[0].get('label') if entities else None
         entity = entities[0].get('id') if entities else None
         if not (entity and label):
-            return
+            raise NoEntryFound
         return(label, entity)
 
     def get_entity_info(self, entity_id, description, claims_info):
@@ -66,7 +68,9 @@ class Wikidata:
         info = {'id': entity_id}
 
         if entity:
-            info['label'] = entity.get('labels').get(language).get('value')
+            labels = entity.get('labels')
+            if labels:
+                info['label'] = labels.get(language).get('value')
 
             if description is True:
                 info['description'] = entity.get('descriptions').get(language).get('value')
@@ -118,8 +122,9 @@ class Wikidata:
                     results.append(datetime.fromisoformat(time))
             elif c_type == 'wikibase-entityid':
                 id = value.get('id')
-                entiy_info = self.get_entity_info(id, False, False)
-                results.append(entiy_info['label'])
+                entity_info = self.get_entity_info(id, False, False)
+                if entity_info.get('label'):
+                    results.append(entity_info['label'])
             elif c_type == 'monolingualtext':
                 results.append(value.get('text'))
             else:
@@ -140,6 +145,10 @@ class Wikidata:
             image_info.pop('descriptionshorturl', None)
             return image_info
         return
+
+
+class NoEntryFound(Exception):
+    pass
 
 
 if __name__ == '__main__':
